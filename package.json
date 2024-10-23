@@ -1,0 +1,42 @@
+{
+  "name": "react-youtube-english",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "dev": "parcel index.html --public-url / --open",
+    "build": "parcel build index.html --public-url /react-youtube-english/ --dist-dir build",
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
+    "lint": "eslint --cache --cache-location node_modules/.cache/eslint packages --ext .ts,.tsx,.js,.jsx"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "prop-types": "15.8.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "fast-deep-equal": "3.1.3",
+    "youtube-player": "5.5.2"
+  },
+  "devDependencies": {
+    "@types/youtube-player": "5.5.6",
+    "@types/react": "18.0.18",
+    "@types/react-dom": "18.0.6",
+    "@types/react-youtube": "^7.10.0",
+    "@typescript-eslint/eslint-plugin": "5.36.2",
+    "@typescript-eslint/parser": "5.36.2",
+    "eslint": "8.23.0",
+    "eslint-config-prettier": "8.5.0",
+    "eslint-config-react-app": "7.0.1",
+    "eslint-plugin-prettier": "4.2.1",
+    "lint-staged": "13.0.3",
+    "parcel": "2.7.0",
+    "prettier": "2.7.1",
+    "process": "0.11.10",
+    "typescript": "4.8.3"
+  },
+  "lint-staged": {
+    "*.js": "eslint --cache --cache-location node_modules/.cache/eslint --ext .ts,.tsx,.js,.jsx --fix",
+    "*.{html,json}": "prettier --cache --write"
+  }
+}
