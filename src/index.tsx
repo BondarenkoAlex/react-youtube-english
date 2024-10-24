@@ -4,19 +4,24 @@ import YouTube, { YouTubePlayer } from "./YouTube";
 
 import "./styles.css";
 
-const VIDEOS = "xyAhDn_oFI8";
+const VIDEO = "https://www.youtube.com/watch?v=xyAhDn_oFI8";
+
+const youtubeParser = (url: string) => {
+  const regExp =
+    /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+  const match = url.match(regExp);
+  return match && match[7].length === 11 ? match[7] : false;
+};
 
 function YouTubeComponentExample() {
-  const [seek, setSeek] = useState<string>(5);
-  const [id, setId] = useState<string>(VIDEOS);
+  const [seek, setSeek] = useState<string>("5");
+  const [youtubeUrl, setYoutubeUrl] = useState<string>(VIDEO);
 
   const [player, setPlayer] = useState<YouTubePlayer>();
   // const [videoIndex, setVideoIndex] = useState(0);
   const [width, setWidth] = useState(600);
-  const [hidden, setHidden] = useState(false);
-  const [autoplay, setAutoplay] = useState(false);
-  //debugger
-  console.log("getCurrentTime", player && player.getCurrentTime());
+  // const [hidden, setHidden] = useState(false);
+  // const [autoplay, setAutoplay] = useState(false);
 
   const prevHandler = useCallback(async () => {
     const currentTime = (await player?.getCurrentTime()) || 0;
@@ -43,7 +48,6 @@ function YouTubeComponentExample() {
 
   useEffect(() => {
     function keyup(e) {
-      debugger;
       if (e.code === "ArrowLeft") {
         prevHandler();
       } else if (e.code === "ArrowRight") {
@@ -59,29 +63,43 @@ function YouTubeComponentExample() {
     return () => document.removeEventListener("keyup", keyup);
   }, [prevHandler, nextHandler]);
 
+  const idVideo = youtubeParser(youtubeUrl) as string;
+  console.log(idVideo);
+
   return (
     <div className="App">
-      <div style={{ display: "flex", marginBottom: "1em" }}>
+      <div>
+        <label>
+          <input
+              type="range"
+              min="300"
+              max="1080"
+              value={width}
+              onChange={(event) => setWidth(event.currentTarget.valueAsNumber)}
+          />
+          <span>Width ({width}px)</span>
+        </label>
+      </div>
+      <div
+        className="controls-view"
+        style={{ display: "flex", marginBottom: "1em" }}
+      >
         {/*<button type="button" onClick={() => player?.seekTo(120, true)}>
           Seek to 2 minutes
         </button>*/}
         {/*<button type="button" onClick={() => setVideoIndex((videoIndex + 1) % VIDEOS.length)}>*/}
         {/*  Change video*/}
         {/*</button>*/}
-        <label>
-          id youtube video
-          <input value={id} onChange={(event) => setId(event.target.value)} />
-        </label>
-        <label>
-          <input
-            type="range"
-            min="300"
-            max="1080"
-            value={width}
-            onChange={(event) => setWidth(event.currentTarget.valueAsNumber)}
-          />
-          Width ({width}px)
-        </label>
+        <div className="controls-view__url">
+          <label className="controls-url">
+            <span>Youtube url:</span>
+            <input
+              className="controls-url__input"
+              value={youtubeUrl}
+              onChange={(event) => setYoutubeUrl(event.target.value)}
+            />
+          </label>
+        </div>
         {/*<button type="button" onClick={() => setHidden(!hidden)}>
           {hidden ? "Show" : "Hide"}
         </button>*/}
@@ -95,23 +113,23 @@ function YouTubeComponentExample() {
         </label>*/}
       </div>
 
-      {hidden ? (
+      {/*      {hidden ? (
         "mysterious"
-      ) : (
-        <YouTube
-          videoId={id}
-          opts={{
-            width,
-            height: width * (9 / 16),
-            playerVars: {
-              autoplay: autoplay ? 1 : 0,
-              controls: 1,
-            },
-          }}
-          className="container"
-          onReady={(event) => setPlayer(event.target)}
-        />
-      )}
+      ) : (*/}
+      <YouTube
+        videoId={idVideo}
+        opts={{
+          width,
+          height: width * (9 / 16),
+          playerVars: {
+            autoplay: /*autoplay ? 1 :*/ 0,
+            controls: 1,
+          },
+        }}
+        className="container"
+        onReady={(event) => setPlayer(event.target)}
+      />
+      {/*      )}*/}
       <div>
         <button type="button" onClick={prevHandler}>
           <span>Prev Seek</span> <kbd>←</kbd>
