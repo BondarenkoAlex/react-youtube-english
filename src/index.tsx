@@ -47,7 +47,7 @@ function YouTubeComponentExample() {
   }, [player]);
 
   useEffect(() => {
-    function keyup(e) {
+    async function keyup(e) {
       if (e.code === "ArrowLeft") {
         prevHandler();
       } else if (e.code === "ArrowRight") {
@@ -56,6 +56,13 @@ function YouTubeComponentExample() {
         pause();
       } else if (e.code === "ArrowDown") {
         play();
+      } else if (e.code === "Space") {
+        const state = await player?.getPlayerState();
+        if (state === 1 /* playing */) {
+          pause();
+        } else if (state === 2  /* paused */) {
+          play();
+        }
       }
     }
     document.addEventListener("keyup", keyup);
@@ -147,11 +154,11 @@ function YouTubeComponentExample() {
         </button>
         &nbsp;&nbsp;
         <span>
-          Pause - <kbd>↑</kbd>
+          Pause - <kbd>↑, Space</kbd>
         </span>
         &nbsp;&nbsp;
         <span>
-          Play - <kbd>↓</kbd>
+          Play - <kbd>↓, Space</kbd>
         </span>
       </div>
     </div>
