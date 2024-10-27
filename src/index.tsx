@@ -71,11 +71,11 @@ function YouTubeComponentExample() {
       <div>
         <label>
           <input
-              type="range"
-              min="300"
-              max="1080"
-              value={width}
-              onChange={(event) => setWidth(event.currentTarget.valueAsNumber)}
+            type="range"
+            min="300"
+            max="1080"
+            value={width}
+            onChange={(event) => setWidth(event.currentTarget.valueAsNumber)}
           />
           <span>Width ({width}px)</span>
         </label>
@@ -134,7 +134,14 @@ function YouTubeComponentExample() {
         <button type="button" onClick={prevHandler}>
           <span>Prev Seek</span> <kbd>←</kbd>
         </button>
-        <input value={seek} onChange={(e) => setSeek(e.target.value)} />
+        <input
+          type="number"
+          step="1"
+          min="1"
+          max="100"
+          value={seek}
+          onChange={(e) => setSeek(e.target.value)}
+        />
         <button type="button" onClick={nextHandler}>
           <span>Next Seek</span> <kbd>→</kbd>
         </button>
