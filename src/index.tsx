@@ -1,10 +1,15 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import YouTube, { YouTubePlayer } from "./YouTube";
+import {initSwipedEvents, TYPE_EVENT} from "./swiped-events";
 
 import "./styles.css";
 
 const VIDEO = "https://www.youtube.com/watch?v=xyAhDn_oFI8";
+
+initSwipedEvents(window, document);
+
+document
 
 const youtubeParser = (url: string) => {
   const regExp =
@@ -14,6 +19,7 @@ const youtubeParser = (url: string) => {
 };
 
 function YouTubeComponentExample() {
+  const ref = useRef<any>();
   const [seek, setSeek] = useState<string>("5");
   const [youtubeUrl, setYoutubeUrl] = useState<string>(VIDEO);
 
@@ -65,16 +71,57 @@ function YouTubeComponentExample() {
         }
       }
     }
+
     document.addEventListener("keyup", keyup);
 
-    return () => document.removeEventListener("keyup", keyup);
+    return () => {
+      document.removeEventListener("keyup", keyup);
+    }
   }, [prevHandler, nextHandler]);
+
+  useEffect(() => {
+    if (!ref.current || !prevHandler || !nextHandler) {
+      return;
+    }
+
+    async function typeEvent(e){
+      const { target } = e.detail;
+      // if (target.contains(ref.current)){
+      //   return;
+      // }
+      console.log(e.detail);
+      const { dir } = e.detail;
+      if (dir === "left") {
+        nextHandler();
+      } else if (dir === "right"){
+        prevHandler();
+      }
+    }
+
+    async function handleTouchMove(e){
+      pause();
+    }
+
+    async function handleTouchEnd(e){
+      play();
+    }
+
+    document.addEventListener(TYPE_EVENT, typeEvent);
+    document.addEventListener("touchmove", handleTouchMove, false);
+    document.addEventListener("touchend", handleTouchEnd, false);
+
+    return () => {
+      document.removeEventListener(TYPE_EVENT, typeEvent);
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleTouchEnd);
+    }
+  }, [ref, prevHandler, nextHandler]);
 
   const idVideo = youtubeParser(youtubeUrl) as string;
   console.log(idVideo);
 
   return (
-    <div className="App">
+    <div className="App" ref={ref}>
       <div>
         <label>
           <input

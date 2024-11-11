@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "include": ["**/*.ts", "**/*.tsx"],
   "compilerOptions": {
-    "lib": ["DOM", "ES2015"],
+    "lib": ["DOM", "ES2015", "DOM.Generated"],
     "isolatedModules": true,
     "esModuleInterop": true,
     "jsx": "react-jsx",
@@ -10,7 +10,8 @@
     "moduleResolution": "node",
     "target": "ES6",
     "skipLibCheck": true,
-    "strict": true
+    "strict": true,
+    "typeRoots": ["./typings"]
   },
   "exclude": ["dist", "build", "node_modules", "**/*.d.ts"]
 }
