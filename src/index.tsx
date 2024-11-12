@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import YouTube, { YouTubePlayer } from "./YouTube";
-import { initSwipedEvents, TYPE_EVENT } from "./swiped-events";
+import { initSwipedEvents, TYPE_EVENT, DOUBLE_TAP_EVENT } from "./swiped-events";
 
 import "./styles.css";
 import { isMobile } from "./is-mobile";
@@ -100,19 +100,31 @@ function YouTubeComponentExample() {
     }
 
     async function handleTouchMove(e) {
-      pause();
+      // pause();
     }
 
     async function handleTouchEnd(e) {
-      play();
+      // play();
+    }
+
+    async function doubleTapeHandle(e) {
+      console.log("doubleTapeHandle");
+      const state = await player?.getPlayerState();
+      if (state === 1 /* playing */) {
+        pause();
+      } else if (state === 2 /* paused */) {
+        play();
+      }
     }
 
     document.addEventListener(TYPE_EVENT, typeEvent);
+    document.addEventListener(DOUBLE_TAP_EVENT, doubleTapeHandle);
     document.addEventListener("touchmove", handleTouchMove, false);
     document.addEventListener("touchend", handleTouchEnd, false);
 
     return () => {
       document.removeEventListener(TYPE_EVENT, typeEvent);
+      document.removeEventListener(DOUBLE_TAP_EVENT, doubleTapeHandle);
       document.removeEventListener("touchmove", handleTouchMove);
       document.removeEventListener("touchend", handleTouchEnd);
     };
@@ -120,6 +132,7 @@ function YouTubeComponentExample() {
 
   const idVideo = youtubeParser(youtubeUrl) as string;
   console.log(idVideo);
+  console.log("state", player?.getPlayerState() );
 
   return (
     <div>

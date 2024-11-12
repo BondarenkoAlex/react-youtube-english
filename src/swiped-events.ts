@@ -1,22 +1,41 @@
 const THRESHOLD = 20;
 // const TIMEOUT = 500;
 export const TYPE_EVENT = "swiped";
+export const DOUBLE_TAP_EVENT = "double-tap";
 
 export const initSwipedEvents = (window: Window, document: Document) => {
   document.addEventListener("touchstart", handleTouchStart, false);
   document.addEventListener("touchmove", handleTouchMove, false);
   document.addEventListener("touchend", handleTouchEnd, false);
 
-  let xDown, yDown, xDiff, yDiff, timeDown, startEl, touchCount;
+  let xDown, yDown, xDiff, yDiff, timeDown, startEl, touchCount, tapStartTime;
 
   function handleTouchStart(e: TouchEvent) {
     e.stopPropagation();
+
+    startEl = e.target;
     // // if the element has data-swipe-ignore="true" we stop listening for swipe events
     // if (e.target.getAttribute("data-swipe-ignore") === "true") return;
 
-    startEl = e.target;
+    const currentTime = Date.now();
+    if ( tapStartTime && (currentTime - tapStartTime) < 300  ){
+      console.log("разница для даблтаб", currentTime - tapStartTime)
 
-    timeDown = Date.now();
+      // fire `swiped` event event on the element that started the swipe
+      startEl.dispatchEvent(
+          new CustomEvent(DOUBLE_TAP_EVENT, {
+            bubbles: true,
+            cancelable: true,
+          })
+      );
+    } else {
+      tapStartTime = currentTime;
+    }
+
+
+
+
+    // timeDown = Date.now();
     xDown = e.touches[0].clientX;
     yDown = e.touches[0].clientY;
     xDiff = 0;
@@ -46,7 +65,7 @@ export const initSwipedEvents = (window: Window, document: Document) => {
     //   getNearestAttribute(startEl, "data-swipe-timeout", "500"),
     //   10
     // ); // default 500ms
-    let timeDiff = Date.now() - timeDown;
+   //  let timeDiff = Date.now() - timeDown;
     let eventType;
     let changedTouches = e.changedTouches || e.touches || [];
 
@@ -121,7 +140,7 @@ export const initSwipedEvents = (window: Window, document: Document) => {
     yDown = null;
     xDiff = null;
     yDiff = null;
-    timeDown = null;
+    // timeDown = null;
     startEl = null;
     touchCount = 0;
   }
