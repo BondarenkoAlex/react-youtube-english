@@ -1,11 +1,18 @@
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import YouTube, { YouTubePlayer } from "./YouTube";
-import { initSwipedEvents, TYPE_EVENT, DOUBLE_TAP_EVENT } from "./swiped-events";
+import {
+  initSwipedEvents,
+  TYPE_EVENT,
+  DOUBLE_TAP_EVENT,
+  TAP_START_EVENT,
+  TAP_END_EVENT,
+  TAP_MOVE_EVENT,
+} from "./swiped-events";
 
 import "./styles.css";
 import { isMobile } from "./is-mobile";
-import {getDocumentWidth} from "./get-document-width";
+import { getDocumentWidth } from "./get-document-width";
 
 const VIDEO = "https://www.youtube.com/watch?v=xyAhDn_oFI8";
 
@@ -22,13 +29,14 @@ function YouTubeComponentExample() {
   const ref = useRef<any>();
   const isMob = useRef<any>(isMobile()).current;
   const [seek, setSeek] = useState<string>("5");
+  const [seekForPlay, setSeekForPlay] = useState<number>(0);
+  // const refSeekForPlay = useRef<number>(0);
   const [youtubeUrl, setYoutubeUrl] = useState<string>(VIDEO);
 
   const [player, setPlayer] = useState<YouTubePlayer>();
-  // const [videoIndex, setVideoIndex] = useState(0);
-  const [width, setWidth] = useState(isMob ? getDocumentWidth() - 32 /* костыль для паддингов */ : 600);
-  // const [hidden, setHidden] = useState(false);
-  // const [autoplay, setAutoplay] = useState(false);
+  const [width, setWidth] = useState(
+    isMob ? getDocumentWidth() /* костыль для паддингов */ : 600
+  );
 
   const prevHandler = useCallback(async () => {
     const currentTime = (await player?.getCurrentTime()) || 0;
@@ -86,12 +94,8 @@ function YouTubeComponentExample() {
     }
 
     async function typeEvent(e) {
-      const { target } = e.detail;
-      // if (target.contains(ref.current)){
-      //   return;
-      // }
-      console.log(e.detail);
       const { dir } = e.detail;
+
       if (dir === "left") {
         nextHandler();
       } else if (dir === "right") {
@@ -99,40 +103,48 @@ function YouTubeComponentExample() {
       }
     }
 
-    async function handleTouchMove(e) {
-      // pause();
+    async function handleTouchStart(e) {
+      pause();
     }
 
     async function handleTouchEnd(e) {
-      // play();
+      play();
     }
 
-    async function doubleTapeHandle(e) {
-      console.log("doubleTapeHandle");
-      const state = await player?.getPlayerState();
-      if (state === 1 /* playing */) {
-        pause();
-      } else if (state === 2 /* paused */) {
-        play();
-      }
+    async function handleTouchMove(e) {
+      console.log("xDiff", e.detail.xDiff);
+      const xDiff = Math.abs(e.detail.xDiff);
+      const round = Math.round(xDiff / 30);
+      setSeekForPlay(round);
+      setSeek(String(round));
     }
+
+    // async function doubleTapeHandle(e) {
+    //   console.log("doubleTapeHandle");
+    //   const state = await player?.getPlayerState();
+    //   if (state === 1 /* playing */) {
+    //     pause();
+    //   } else if (state === 2 /* paused */) {
+    //     play();
+    //   }
+    // }
 
     document.addEventListener(TYPE_EVENT, typeEvent);
-    document.addEventListener(DOUBLE_TAP_EVENT, doubleTapeHandle);
-    document.addEventListener("touchmove", handleTouchMove, false);
-    document.addEventListener("touchend", handleTouchEnd, false);
+    document.addEventListener(TAP_START_EVENT, handleTouchStart);
+    document.addEventListener(TAP_MOVE_EVENT, handleTouchMove);
+    document.addEventListener(TAP_END_EVENT, handleTouchEnd, false);
 
     return () => {
       document.removeEventListener(TYPE_EVENT, typeEvent);
-      document.removeEventListener(DOUBLE_TAP_EVENT, doubleTapeHandle);
-      document.removeEventListener("touchmove", handleTouchMove);
-      document.removeEventListener("touchend", handleTouchEnd);
+      document.removeEventListener(TAP_START_EVENT, handleTouchStart);
+      document.removeEventListener(TAP_MOVE_EVENT, handleTouchMove);
+      document.removeEventListener(TAP_END_EVENT, handleTouchEnd);
     };
   }, [ref, prevHandler, nextHandler]);
 
   const idVideo = youtubeParser(youtubeUrl) as string;
   console.log(idVideo);
-  console.log("state", player?.getPlayerState() );
+  console.log("state", player?.getPlayerState());
 
   return (
     <div>
@@ -205,6 +217,7 @@ function YouTubeComponentExample() {
             Play - <kbd>↓, Space</kbd>
           </span>
         </div>
+        <div>seekForPlay: {seekForPlay}</div>
       </div>
     </div>
   );

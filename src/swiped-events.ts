@@ -1,7 +1,10 @@
 const THRESHOLD = 20;
 // const TIMEOUT = 500;
 export const TYPE_EVENT = "swiped";
-export const DOUBLE_TAP_EVENT = "double-tap";
+// export const DOUBLE_TAP_EVENT = "double-tap";
+export const TAP_START_EVENT = "tap-start";
+export const TAP_END_EVENT = "tap-end";
+export const TAP_MOVE_EVENT = "tap-move";
 
 export const initSwipedEvents = (window: Window, document: Document) => {
   document.addEventListener("touchstart", handleTouchStart, false);
@@ -17,20 +20,27 @@ export const initSwipedEvents = (window: Window, document: Document) => {
     // // if the element has data-swipe-ignore="true" we stop listening for swipe events
     // if (e.target.getAttribute("data-swipe-ignore") === "true") return;
 
-    const currentTime = Date.now();
-    if ( tapStartTime && (currentTime - tapStartTime) < 300  ){
-      console.log("разница для даблтаб", currentTime - tapStartTime)
+    startEl.dispatchEvent(
+        new CustomEvent(TAP_START_EVENT, {
+          bubbles: true,
+          cancelable: true,
+        })
+    );
 
-      // fire `swiped` event event on the element that started the swipe
-      startEl.dispatchEvent(
-          new CustomEvent(DOUBLE_TAP_EVENT, {
-            bubbles: true,
-            cancelable: true,
-          })
-      );
-    } else {
-      tapStartTime = currentTime;
-    }
+    // const currentTime = Date.now();
+    // if ( tapStartTime && (currentTime - tapStartTime) < 300  ){
+    //   console.log("разница для даблтаб", currentTime - tapStartTime)
+    //
+    //   // fire `swiped` event event on the element that started the swipe
+    //   startEl.dispatchEvent(
+    //       new CustomEvent(DOUBLE_TAP_EVENT, {
+    //         bubbles: true,
+    //         cancelable: true,
+    //       })
+    //   );
+    // } else {
+    //   tapStartTime = currentTime;
+    // }
 
 
 
@@ -49,6 +59,16 @@ export const initSwipedEvents = (window: Window, document: Document) => {
 
     xDiff = xDown - e.touches[0].clientX;
     yDiff = yDown - e.touches[0].clientY;
+
+    startEl.dispatchEvent(
+        new CustomEvent(TAP_MOVE_EVENT, {
+          bubbles: true,
+          cancelable: true,
+          detail: {
+            xDiff: parseInt(xDiff, 10),
+          }
+        })
+    );
   }
 
   function handleTouchEnd(e) {
@@ -103,6 +123,7 @@ export const initSwipedEvents = (window: Window, document: Document) => {
         touchType: (changedTouches[0] || {}).touchType || "direct",
         fingers: touchCount, // Number of fingers used
         target: startEl,
+        xDiff: parseInt(xDiff, 10),
         // xStart: parseInt(xDown, 10),
         // xEnd: parseInt((changedTouches[0] || {}).clientX || -1, 10),
         // yStart: parseInt(yDown, 10),
@@ -132,6 +153,17 @@ export const initSwipedEvents = (window: Window, document: Document) => {
     // xDown = null;
     // yDown = null;
     // timeDown = null;
+
+    startEl.dispatchEvent(
+        new CustomEvent(TAP_END_EVENT, {
+          bubbles: true,
+          cancelable: true,
+          detail: {
+            xDiff: parseInt(xDiff, 10),
+          }
+        })
+    );
+
     reset();
   }
 
